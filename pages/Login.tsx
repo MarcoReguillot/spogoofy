@@ -10,14 +10,11 @@ export default function Login({ navigation }: Props) {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Basic validation
     if (email === '' || password === '') {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
 
-    // Here you can add your authentication logic
-    // For simplicity, let's just show an alert with the entered credentials
     Alert.alert('Success', `Logged in as ${email}`);
   };
 

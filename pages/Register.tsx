@@ -1,23 +1,21 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { RootStackParamList } from '../Navigation';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-export default function Register( { navigation }: Props) {
+export default function Login({ navigation }: Props) {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Basic validation
-    if (email === '' || password === '') {
+    if (email === '' || password === '' || username === '') {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
 
-    // Here you can add your authentication logic
-    // For simplicity, let's just show an alert with the entered credentials
     Alert.alert('Success', `Logged in as ${email}`);
   };
 
@@ -31,12 +29,19 @@ export default function Register( { navigation }: Props) {
       />
       <TextInput
         style={styles.input}
+        placeholder="Username"
+        onChangeText={(text) => setUsername(text)}
+        value={username}
+        secureTextEntry
+      />
+      <TextInput
+        style={styles.input}
         placeholder="Password"
         onChangeText={(text) => setPassword(text)}
         value={password}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} />
+      <Button title="Register" onPress={handleLogin} />
       <Button title="Go to Login" onPress={() => navigation.navigate("Login")} />
     </View>
   );
