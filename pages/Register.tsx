@@ -15,6 +15,7 @@ export default function Login({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
+    if (loading) return;
     if (email === '' || password === '' || username === '') {
       Alert.alert('Error', 'Please enter both email and password');
       return;

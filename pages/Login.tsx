@@ -2,20 +2,32 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { RootStackParamList } from '../Navigation';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { FIREBASE_AUTH } from '../FirebaseConfig';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export default function Login({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
+    if (loading) return;
     if (email === '' || password === '') {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
-
-    Alert.alert('Success', `Logged in as ${email}`);
+    setLoading(true);
+    signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
+      .then((userCredential) => {
+        Alert.alert('Success', `Logged in as ${userCredential.user.email}`);
+        setLoading(false);
+      })
+      .catch((error) => {
+        alert(error.message);
+        setLoading(false);
+      });
   };
 
   return (
