@@ -2,6 +2,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { RootStackParamList } from '../Navigation';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
+import { collection, addDoc } from 'firebase/firestore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -9,14 +12,27 @@ export default function Login({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
     if (email === '' || password === '' || username === '') {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
-
-    Alert.alert('Success', `Logged in as ${email}`);
+    createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
+      .then((creds) => addDoc(collection(FIREBASE_DB, 'users'), {
+        username,
+        uid: creds.user.uid,
+      }))
+      .then((creds) => {
+        console.log(creds)
+        Alert.alert('Success', `Logged in as ${email}`);
+        setLoading(false);
+      })
+      .catch((error) => {
+        alert(error.message);
+        setLoading(false);
+      });
   };
 
   return (
@@ -32,7 +48,6 @@ export default function Login({ navigation }: Props) {
         placeholder="Username"
         onChangeText={(text) => setUsername(text)}
         value={username}
-        secureTextEntry
       />
       <TextInput
         style={styles.input}
