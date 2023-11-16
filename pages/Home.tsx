@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, Button, FlatList, Image, StyleSheet, PermissionsAndroid } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
+import { getDocumentAsync } from 'expo-document-picker';
 import { FIREBASE_STORAGE } from '../FirebaseConfig';
-import { ref, uploadBytes } from 'firebase/storage';
+import { StorageReference, ref, uploadBytes } from 'firebase/storage';
+import { randomUUID } from "expo-crypto"
 const songs = [
   {
     id: 1,
@@ -19,9 +21,17 @@ const songs = [
   },
 ];
 
+async function uploadToFirebase(src: string, dest: string) {
+  const reference = ref(FIREBASE_STORAGE, dest);
+  const fetchResponse = await fetch(src)
+  const blob = await fetchResponse.blob()
+  return await uploadBytes(reference, blob);
+}
+
 export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [songUri, setSongUri] = useState<string | null>(null);
   const handleAddImage = async () => {
     try {
       // const granted = await PermissionsAndroid.requestMultiple([
@@ -45,16 +55,36 @@ export default function Home() {
   };
 
   const handleUpload = async () => {
-    const reference = ref(FIREBASE_STORAGE, "test");
-    if (!imageUri) return;
-    const fetchResponse = await fetch(imageUri)
-    const blob = await fetchResponse.blob()
-    await uploadBytes(reference, blob);
-    alert('Song uploaded successfully!');
+    if (!imageUri) {
+      alert('Please select an image first');
+      return;
+    }
+    if (!songUri) {
+      alert('Please select a song first');
+      return;
+    }
+    if (uploading) return;
+
+    const songUUID = "aze"
+
+    await uploadToFirebase(imageUri, "images/" + songUUID);
+    console.log("hahah")
+    await uploadToFirebase(songUri, "songs/" + songUUID);
+    console.log("hahi")
+    alert('Upload successful!');
   }
 
-  const handleAddSong = () => {
-    console.log('Adding a song');
+  const handleAddSong = async () => {
+    getDocumentAsync({
+      type: "audio/*",
+    }).then((result) => {
+      if (result.canceled) return;
+      setSongUri(result.assets[0].uri);
+      alert('Song uploaded successfully!');
+    }).catch((error) => {
+      alert('Error uploading song');
+      console.error(error);
+    })
   };
 
   const renderItem = ({ item }: any) => (
