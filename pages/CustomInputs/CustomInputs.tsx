@@ -47,11 +47,13 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         height: 60,
         paddingLeft: 15,
-        fontStyle: 'italic', // Set the text style to italic
+        fontStyle: 'italic',
+        fontSize: 15, // Set the text style to italic
         color: '#888',
     },
     text: {
-        fontWeight: '800'
+        fontWeight: '800',
+        fontSize: 15,
     }
 })
 

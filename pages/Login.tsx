@@ -5,7 +5,7 @@ import { RootStackParamList } from '../Navigation';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 import CustomInputs from './CustomInputs';
-import CustomButtons from './CustomButtons';
+import { CustomButtons } from './CustomButtons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -67,7 +67,7 @@ export default function Login({ navigation }: Props) {
         value={email}
         setValue={setEmail}
         placeholder="Enter your e-mail"
-        securityTextEntry={true}
+        securityTextEntry={false}
         title="Email"
       />
 
