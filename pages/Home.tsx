@@ -1,7 +1,9 @@
-import React from 'react';
-import { View, Text, Button, FlatList, Image, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Button, FlatList, Image, StyleSheet, PermissionsAndroid } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
+import { FIREBASE_STORAGE } from '../FirebaseConfig';
+import { ref, uploadBytes } from 'firebase/storage';
 const songs = [
   {
     id: 1,
@@ -18,6 +20,39 @@ const songs = [
 ];
 
 export default function Home() {
+  const [uploading, setUploading] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const handleAddImage = async () => {
+    try {
+      // const granted = await PermissionsAndroid.requestMultiple([
+      //   PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      // ]);
+
+      // if (granted['android.permission.READ_EXTERNAL_STORAGE'] === 'granted') {
+        const result = await launchImageLibraryAsync({
+          mediaTypes: MediaTypeOptions.Images,
+        });
+
+        if (!result.canceled) {
+          console.log("songUri", result);
+          setImageUri(result.assets[0].uri);
+          alert('Song uploaded successfully!');
+        }
+      // }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUpload = async () => {
+    const reference = ref(FIREBASE_STORAGE, "test");
+    if (!imageUri) return;
+    const fetchResponse = await fetch(imageUri)
+    const blob = await fetchResponse.blob()
+    await uploadBytes(reference, blob);
+    alert('Song uploaded successfully!');
+  }
+
   const handleAddSong = () => {
     console.log('Adding a song');
   };
@@ -34,7 +69,9 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Button title="Add Image" onPress={handleAddImage} />
       <Button title="Add Song" onPress={handleAddSong} />
+      <Button title="Upload" onPress={handleUpload} />
       <FlatList
         data={songs}
         keyExtractor={(item) => item.id.toString()}
