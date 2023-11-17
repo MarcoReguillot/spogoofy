@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { getDocumentAsync } from 'expo-document-picker';
 import { FIREBASE_STORAGE } from '../FirebaseConfig';
-import { StorageReference, ref, uploadBytes } from 'firebase/storage';
+import { StorageReference, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
 import { randomUUID } from "expo-crypto"
 const songs = [
   {
@@ -25,7 +25,8 @@ async function uploadToFirebase(src: string, dest: string) {
   const reference = ref(FIREBASE_STORAGE, dest);
   const fetchResponse = await fetch(src)
   const blob = await fetchResponse.blob()
-  return await uploadBytes(reference, blob);
+  // https://github.com/firebase/firebase-js-sdk/issues/5848
+  return await uploadBytesResumable(reference, blob);
 }
 
 export default function Home() {
@@ -43,7 +44,7 @@ export default function Home() {
           mediaTypes: MediaTypeOptions.Images,
         });
 
-        if (!result.canceled) {
+        if (result.assets) {
           console.log("songUri", result);
           setImageUri(result.assets[0].uri);
           alert('Song uploaded successfully!');
@@ -78,7 +79,7 @@ export default function Home() {
     getDocumentAsync({
       type: "audio/*",
     }).then((result) => {
-      if (result.canceled) return;
+      if (!result.assets) return;
       setSongUri(result.assets[0].uri);
       alert('Song uploaded successfully!');
     }).catch((error) => {
