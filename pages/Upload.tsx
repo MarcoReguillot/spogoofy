@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Button, StyleSheet, Image, Text } from 'react-native';
+import { Button, StyleSheet, Image, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { DocumentPickerAsset, getDocumentAsync } from 'expo-document-picker';
-import { FIREBASE_STORAGE } from '../FirebaseConfig';
+import { FIREBASE_DB, FIREBASE_STORAGE } from '../FirebaseConfig';
 import { ref, uploadBytesResumable } from 'firebase/storage';
 import { randomUUID } from "expo-crypto"
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 
 async function uploadToFirebase(src: string, dest: string) {
     const reference = ref(FIREBASE_STORAGE, dest);
@@ -19,6 +20,7 @@ export default function Upload() {
     const [loading, setLoading] = useState(false);
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [song, setSong] = useState<DocumentPickerAsset | null>(null);
+    const [songName, setSongName] = useState<string>("");
     const handleAddImage = async () => {
       if (loading) return;
       setLoading(true);
@@ -56,9 +58,14 @@ export default function Upload() {
       }
       setLoading(true)
       const songUUID = randomUUID();
-  
+
       await uploadToFirebase(imageUri, "images/" + songUUID);
       await uploadToFirebase(song.uri, "songs/" + songUUID);
+
+      await setDoc(doc(FIREBASE_DB, 'songs', songUUID), {
+        uid: songUUID,
+        title: songName
+      })
       setLoading(false)
       alert('Upload successful!');
     }
@@ -82,6 +89,11 @@ export default function Upload() {
         { imageUri && <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} /> }
         <Button title="Add Song" onPress={handleAddSong} />
         { song && <Text>{song.name}</Text> }
+        <TextInput style={styles.input}
+            placeholder='Song name'
+            value={songName}
+            onChangeText={(text) => setSongName(text)
+        } />
         <Button title="Upload" onPress={handleUpload} />
       </SafeAreaView>
     );
@@ -96,5 +108,11 @@ export default function Upload() {
       flexDirection: 'row',
       alignItems: 'center',
       marginBottom: 16,
-    }
+    },
+    input: {
+        height: 40,
+        borderWidth: 1,
+        marginBottom: 12,
+        paddingLeft: 8,
+    },
   });
