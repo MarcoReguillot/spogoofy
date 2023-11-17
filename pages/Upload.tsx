@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Button, StyleSheet } from 'react-native';
+import { Button, StyleSheet, Image, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
-import { getDocumentAsync } from 'expo-document-picker';
+import { DocumentPickerAsset, getDocumentAsync } from 'expo-document-picker';
 import { FIREBASE_STORAGE } from '../FirebaseConfig';
 import { ref, uploadBytesResumable } from 'firebase/storage';
 import { randomUUID } from "expo-crypto"
@@ -18,7 +18,7 @@ async function uploadToFirebase(src: string, dest: string) {
 export default function Upload() {
     const [loading, setLoading] = useState(false);
     const [imageUri, setImageUri] = useState<string | null>(null);
-    const [songUri, setSongUri] = useState<string | null>(null);
+    const [song, setSong] = useState<DocumentPickerAsset | null>(null);
     const handleAddImage = async () => {
       if (loading) return;
       setLoading(true);
@@ -50,7 +50,7 @@ export default function Upload() {
         alert('Please select an image first');
         return;
       }
-      if (!songUri) {
+      if (!song) {
         alert('Please select a song first');
         return;
       }
@@ -58,7 +58,7 @@ export default function Upload() {
       const songUUID = randomUUID();
   
       await uploadToFirebase(imageUri, "images/" + songUUID);
-      await uploadToFirebase(songUri, "songs/" + songUUID);
+      await uploadToFirebase(song.uri, "songs/" + songUUID);
       setLoading(false)
       alert('Upload successful!');
     }
@@ -68,7 +68,7 @@ export default function Upload() {
         type: "audio/*",
       }).then((result) => {
         if (!result.assets) return;
-        setSongUri(result.assets[0].uri);
+        setSong(result.assets[0]);
         alert('Song uploaded successfully!');
       }).catch((error) => {
         alert('Error uploading song');
@@ -79,7 +79,9 @@ export default function Upload() {
     return (
       <SafeAreaView style={styles.container}>
         <Button title="Add Image" onPress={handleAddImage} />
+        { imageUri && <Image source={{ uri: imageUri }} style={{ width: 200, height: 200 }} /> }
         <Button title="Add Song" onPress={handleAddSong} />
+        { song && <Text>{song.name}</Text> }
         <Button title="Upload" onPress={handleUpload} />
       </SafeAreaView>
     );
