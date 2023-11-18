@@ -124,6 +124,7 @@ export default function Home({ navigation }: Props)
     nextSongAudio: null,
     nextSongLoadedPromise: new Promise(() => {}),
   });
+  const started = useRef(false);
 
   useEffect(() => {
     getSongList().then((_songs) => {
@@ -134,7 +135,6 @@ export default function Home({ navigation }: Props)
       }
       lectureState.current.lectureList = shuffleArray(_songs.length);
       setSongs(_songs);
-      //console.log(lectureList.current);
     })
   }, [])
 
@@ -204,7 +204,18 @@ export default function Home({ navigation }: Props)
         onPress={() => navigation.navigate("Upload") }
       />
       <Button title="Logout" onPress={() => FIREBASE_AUTH.signOut()} />
-      <Button title="Play" onPress={() => songLoop()} />
+      <Button title="Play" onPress={() => {
+        if (!started.current) {
+          songLoop();
+          started.current = true;
+          return;
+        }
+        lectureState.current.currentSongAudio.playAsync();
+      }} />
+      <Button title="Pause" onPress={() => {
+        if (started.current == false) return;
+        lectureState.current.currentSongAudio.pauseAsync();
+      }} />
     </SafeAreaView>
   );
 };
