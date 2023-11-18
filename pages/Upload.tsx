@@ -3,7 +3,7 @@ import { Button, StyleSheet, Image, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { DocumentPickerAsset, getDocumentAsync } from 'expo-document-picker';
-import { FIREBASE_DB, FIREBASE_STORAGE } from '../FirebaseConfig';
+import { FIREBASE_AUTH, FIREBASE_DB, FIREBASE_STORAGE } from '../FirebaseConfig';
 import { ref, uploadBytesResumable } from 'firebase/storage';
 import { randomUUID } from "expo-crypto"
 import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
@@ -56,6 +56,10 @@ export default function Upload() {
         alert('Please select a song first');
         return;
       }
+      if (!FIREBASE_AUTH.currentUser) {
+        alert('User is not logged, try to go back to the login page and log in again');
+        return;
+      }
       setLoading(true)
       const songUUID = randomUUID();
 
@@ -64,7 +68,8 @@ export default function Upload() {
 
       await setDoc(doc(FIREBASE_DB, 'songs', songUUID), {
         uid: songUUID,
-        title: songName
+        title: songName,
+        uploadedBy: FIREBASE_AUTH.currentUser.uid
       })
       setLoading(false)
       alert('Upload successful!');

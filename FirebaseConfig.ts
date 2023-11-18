@@ -28,3 +28,10 @@ export const FIREBASE_AUTH = getAuth(FIREBASE_APP);
 export const FIREBASE_DB = getFirestore(FIREBASE_APP);
 
 export const FIREBASE_STORAGE = getStorage(FIREBASE_APP, "gs://spogoofy.appspot.com");
+
+export interface FirebaseSong {
+  id: string;
+  uid: string;
+  title: string;
+  uploadedBy: string;
+}
