@@ -4,26 +4,28 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Home from './pages/Home';
+import NavBar from './pages/NavBar';
+import { StyleSheet } from 'react-native';
+
 
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  Home: undefined;
+  NavBar: undefined;
   // here put the different pages
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function Navigation() {
-    return (
-    <NavigationContainer>
+  return (
+    <NavigationContainer >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="NavBar" component={NavBar} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
-    );
+  );
 }
