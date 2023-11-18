@@ -4,7 +4,7 @@ import { View, Image, Alert, StyleSheet, Text } from 'react-native';
 import { RootStackParamList } from '../Navigation';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
-import CustomInputs from './CustomInputs';
+import { CustomInputs } from './CustomInputs';
 import { CustomButtons } from './CustomButtons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;

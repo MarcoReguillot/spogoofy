@@ -1,60 +1,70 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, Button, FlatList, Dimensions, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { signOut } from 'firebase/auth';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../Navigation';
-import { SongItem } from './CustomButtons';
+import { GenreInputButton } from './CustomButtons';
+import { SearchInput } from './CustomInputs';
+
+const screenWidth = Dimensions.get('window').width;
 
 
 const Search = () => {
 
+    const handleTest = () => {
+        console.log("test")
+    }
+
     return (
         <SafeAreaView style={styles.container}>
-            <Text>Search</Text>
+            <Text style={styles.title}>Search</Text>
+            <SearchInput />
+            <Text style={styles.title2}>Your top genre</Text>
+            <View style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+
+                <GenreInputButton text="Mario" onPress={handleTest} imageStyle={{ backgroundColor: 'red', width: (screenWidth / 2) - 25 }} />
+                <GenreInputButton text="Zelda" onPress={handleTest} imageStyle={{ backgroundColor: 'green', width: (screenWidth / 2) - 25 }} />
+
+            </View>
+            <Text style={styles.title2}>Browse all</Text>
+            <View style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+
+                <GenreInputButton text="Roblox" onPress={handleTest} imageStyle={{ backgroundColor: 'brown', width: (screenWidth / 2) - 25 }} />
+                <GenreInputButton text="Minecraft" onPress={handleTest} imageStyle={{ backgroundColor: 'green', width: (screenWidth / 2) - 25 }} />
+
+            </View>
+            <View style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+
+                <GenreInputButton text="Gang Beast" onPress={handleTest} imageStyle={{ backgroundColor: 'orange', width: (screenWidth / 2) - 25 }} />
+                <GenreInputButton text="COD" onPress={handleTest} imageStyle={{ backgroundColor: 'brown', width: (screenWidth / 2) - 25 }} />
+
+            </View>
+            <View style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'space-between' }}>
+
+                <GenreInputButton text="Fortnite" onPress={handleTest} imageStyle={{ backgroundColor: 'blue', width: (screenWidth / 2) - 25 }} />
+                <GenreInputButton text="Crash Bandicoot" onPress={handleTest} imageStyle={{ backgroundColor: 'orange', width: (screenWidth / 2) - 25 }} />
+
+            </View>
+
         </SafeAreaView >
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         padding: 20,
-        backgroundColor: 'white'
     },
-    songContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    songImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginRight: 16,
-    },
-    songDetails: {
-        flex: 1,
-    },
-    songTitle: {
-        fontSize: 18,
+    title: {
+        fontSize: 32,
         fontWeight: 'bold',
+        marginBottom: 10
     },
-    addedBy: {
-        color: 'gray',
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.2)', // Fond semi-transparent pour l'effet de modal
-    },
-    modalMenu: {
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 10,
+    title2: {
+        fontSize: 18,
+        marginTop: 30,
+        fontWeight: 'bold',
 
     }
 });

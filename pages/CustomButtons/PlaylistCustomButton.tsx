@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     playlistImage: {
         width: 50, // Ajustez la largeur de l'image selon vos besoins
         height: 50, // Ajustez la hauteur de l'image selon vos besoins
-        borderRadius: 10, // Utilisez la moitié de la largeur ou de la hauteur pour obtenir un cercle
         marginRight: 10,
     },
     playlistDetails: {

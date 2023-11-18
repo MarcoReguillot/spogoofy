@@ -267,10 +267,10 @@ const Home = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: 'white',
     overflow: 'hidden',
-
+    paddingVertical: 10,
+    paddingLeft: 20
   },
   songContainer: {
     flexDirection: 'row',
