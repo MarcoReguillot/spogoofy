@@ -7,6 +7,7 @@ interface SongItemProps {
     title: string;
     addedBy: string;
     containerStyle?: ViewStyle;
+    imageStyle?: ViewStyle;
     titleStyle?: TextStyle;
     addedByStyle?: TextStyle;
     onPress?: () => void;
@@ -14,14 +15,14 @@ interface SongItemProps {
 
 }
 
-const SongItem: FC<SongItemProps> = ({ image, icon, title, addedBy, containerStyle, titleStyle, addedByStyle, onPress, onImagePress }) => {
+const SongItem: FC<SongItemProps> = ({ image, icon, title, addedBy, containerStyle, titleStyle, imageStyle, addedByStyle, onPress, onImagePress }) => {
     return (
         <TouchableOpacity onPress={onPress} style={[styles.songContainer, containerStyle]}>
             <View style={styles.leftContainer}>
-                <Image source={image} style={styles.songImage} />
+                <Image source={image} style={[styles.songImage, imageStyle]} />
                 <View style={styles.songDetails}>
                     <Text style={[styles.songTitle, titleStyle]}>{title}</Text>
-                    <Text style={[styles.addedBy, addedByStyle]}>Added by: {addedBy}</Text>
+                    <Text style={[styles.addedBy, addedByStyle]}>{addedBy}</Text>
                 </View>
                 <TouchableOpacity onPress={onImagePress}>
                     <Image source={icon} style={styles.icon} />

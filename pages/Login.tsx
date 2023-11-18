@@ -18,7 +18,7 @@ export default function Login({ navigation }: Props) {
     FIREBASE_AUTH.onAuthStateChanged((user) => {
       if (user) {
         console.log('user logged')
-        navigation.navigate('Home')
+        navigation.navigate('NavBar')
       } else {
         console.log('user not logged')
       }
