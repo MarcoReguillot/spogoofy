@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, Image, Button, Dimensions, FlatList, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FIREBASE_AUTH } from '../FirebaseConfig';
-import { signOut } from 'firebase/auth';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../Navigation';
-import { SongItem } from './CustomButtons';
+import { SongItem, PlaylistItem, MusicButton } from './CustomButtons';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+// type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 
 const songs = [
@@ -23,6 +21,47 @@ const songs = [
     image: 'https://placekitten.com/200/201', // Example image URL
     addedBy: 'Jane Doe',
   },
+];
+
+const newSongs = [
+  {
+    id: 1,
+    title: 'Cat goofy 1',
+    image: 'https://placekitten.com/200/200', // Example image URL
+  },
+  {
+    id: 2,
+    title: 'Song 2',
+    image: 'https://placekitten.com/200/201', // Example image URL
+  },
+  {
+    id: 3,
+    title: 'Song 2',
+    image: 'https://placekitten.com/200/201', // Example image URL
+  },
+
+
+];
+
+interface Playlist {
+  id: number;
+  title: string;
+  image: string;
+}
+
+const playlists: Playlist[] = [
+  {
+    id: 1,
+    title: 'Liked sounds',
+    image: 'https://placekitten.com/200/200',
+  },
+  {
+    id: 2,
+    title: 'Goofy',
+    image: 'https://placekitten.com/200/201',
+  },
+
+  // Ajoutez d'autres playlists ici
 ];
 
 const Home = () => {
@@ -44,10 +83,18 @@ const Home = () => {
   const handlePlaying = () => {
     console.log('play sound');
   };
+  const handlePlaylist = () => {
+    console.log('playlist');
+  };
   const handleModalClose = () => {
     // Logique à exécuter lorsque le modal est fermé en cliquant à l'extérieur
     setModalVisible(false);
   };
+  const handleNewSong = () => {
+    console.log('new song');
+  }
+
+  const screenWidth = Dimensions.get('window').width;
 
   const renderItem = ({ item }: any) => (
     <View style={styles.songContainer}>
@@ -71,13 +118,106 @@ const Home = () => {
 
   );
 
+  const newSongsItem = ({ item }: any) => (
+    <View style={styles.songContainer}>
+      {/* <Image source={{ uri: item.image }} style={styles.songImage} />
+      <View style={styles.songDetails}>
+        <Text style={styles.songTitle}>{item.title}</Text>
+        <Text style={styles.addedBy}>Added by: {item.addedBy}</Text>
+      </View> */}
+      <MusicButton
+        image={{ uri: item.image }}
+        text={item.title}
+        onPress={handleNewSong}
+      />
+    </View>
+
+  );
+
+  const renderPlaylistItem: React.FC<{ item: Playlist }> = ({ item }) => (
+    <View style={styles.playlistContainer}>
+      <PlaylistItem
+        image={{ uri: item.image }}
+        title={item.title}
+        containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25, marginRight: 10 }}
+        titleStyle={{ fontSize: 12, color: 'white' }}
+        onPress={handlePlaylist}
+      />
+    </View>
+  );
+
+  const keyExtractor = (item: Playlist) => item.id.toString();
+
+  const groupedPlaylists: Playlist[][] = [];
+  for (let i = 0; i < playlists.length; i += 2) {
+    groupedPlaylists.push(playlists.slice(i, i + 2));
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <Button title="Sign Out" onPress={handleAddSong} />
-      <FlatList
+      <ScrollView>
+        <Text style={styles.title}>Welcome, Jean</Text>
+        {/* <Button title="Sign Out" onPress={handleAddSong} /> */}
+        {/* <View style={styles.playlist}>
+          <PlaylistItem
+            image={require('../assets/Icons/Liked_sound.png')}
+            title="Liked sounds"
+            containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25 }}
+            titleStyle={{ fontSize: 12, color: 'white' }}
+            onPress={handlePlaylist}
+          />
+          <PlaylistItem
+            image={require('../assets/Icons/Goofy.png')}
+            title="Goofy"
+            containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25 }}
+            titleStyle={{ fontSize: 12, color: 'white' }}
+            onPress={handlePlaylist}
+          // Propriétés pour le deuxième PlaylistItem
+          />
+        </View> */}
+        <View>
+          <FlatList
+            data={playlists}
+            renderItem={renderPlaylistItem}
+            keyExtractor={keyExtractor}
+            numColumns={2}
+          />
+        </View>
+        <View style={styles.horizontal}>
+          <Text style={styles.title2}>Recently played</Text>
+          <FlatList
+            data={newSongs}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={newSongsItem}
+            horizontal={true}
+            contentContainerStyle={{ flexGrow: 1, alignSelf: 'flex-end' }}
+          />
+        </View>
+        <Text style={styles.title2}>Made for you</Text>
+        <FlatList
+          data={newSongs}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={newSongsItem}
+          horizontal={true}
+          contentContainerStyle={{ flexGrow: 1, alignSelf: 'flex-end' }}
+        />
+        <Text style={styles.title2}>Popular</Text>
+        <FlatList
+          data={newSongs}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={newSongsItem}
+          horizontal={true}
+          contentContainerStyle={{ flexGrow: 1, alignSelf: 'flex-end' }}
+        />
+        <Text style={styles.title}>Popular</Text>
+
+
+
+        {/* <FlatList
         data={songs}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
+        numColumns={1}
       />
       <Modal
         animationType="slide"
@@ -87,7 +227,6 @@ const Home = () => {
       >
         <TouchableWithoutFeedback onPress={handleModalClose}>
           <View style={styles.modalContainer}>
-            {/* Le contenu du menu contextuel */}
             <View style={styles.modalMenu}>
               <SongItem
                 image={require('../assets/Icons/music.png')}
@@ -119,7 +258,8 @@ const Home = () => {
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </Modal>
+      </Modal> */}
+      </ScrollView>
     </SafeAreaView >
   );
 };
@@ -128,7 +268,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    overflow: 'hidden',
+
   },
   songContainer: {
     flexDirection: 'row',
@@ -163,6 +305,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
 
+  },
+  playlist: {
+    flexDirection: 'row', // Alignement horizontal
+    justifyContent: 'space-between', // Espacement équitable entre les éléments
+
+  },
+  playlistContainer: {
+    flexDirection: 'row', // Alignement horizontal
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  title2: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10
+  },
+  image: {
+    width: 120,
+    height: 120
+  },
+  horizontal: {
+    flex: 1,
+    marginLeft: 'auto', // Pour aligner à droite
   }
 });
 
