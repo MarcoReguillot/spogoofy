@@ -6,6 +6,8 @@ import { FIREBASE_AUTH, FIREBASE_DB, FIREBASE_STORAGE, FirebaseSong } from '../F
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { getDownloadURL, ref } from 'firebase/storage';
+import { Audio } from "expo-av";
+
 const songs = [
   {
     id: 1,
@@ -26,8 +28,8 @@ interface Song {
   title: string;
   image: string;
   addedBy: string;
+  song: string;
 }
-
 
 async function getSongList() {
   const songCollection = collection(FIREBASE_DB, 'songs');
@@ -43,16 +45,40 @@ async function getSongList() {
     id: song.id,
     title: song.title,
     addedBy: userSnapshot.docs.find(doc => doc.data().uid === song.uploadedBy)?.data().username,
-    image: ''
+    image: '',
+    song: '',
   }));
 
   for (let i of songsWithUser) {
     const imageRef = ref(FIREBASE_STORAGE, `images/${i.id}`);
-    const imageUrl = await getDownloadURL(imageRef);
-    i.image = imageUrl;
+    i.image = await getDownloadURL(imageRef);
+
+    const songRef = ref(FIREBASE_STORAGE, `songs/${i.id}`);
+    i.song = await getDownloadURL(songRef);
   }
 
   return songsWithUser;
+}
+
+async function playSong(song: Song) {
+  const soundObject = new Audio.Sound();
+  await Audio.setAudioModeAsync({
+   allowsRecordingIOS: false,
+   playsInSilentModeIOS: true,
+   staysActiveInBackground: true,
+   shouldDuckAndroid: true,
+  });
+
+  try {
+    await soundObject.loadAsync({ uri: song.song });
+    const status = await soundObject.getStatusAsync();
+console.log(status);
+    await soundObject.playAsync();
+    //console.log("c")
+    //await soundObject.unloadAsync();
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -65,10 +91,12 @@ export default function Home({ navigation }: Props)
     getSongList().then(setSongs)
   }, [])
 
+  console.log(songs)
+
   const renderItem = ({ item }: {item:  Song}) => (
     <View style={styles.songContainer}>
       <Image source={{ uri: item.image }} style={styles.songImage} />
-      <View style={styles.songDetails}>
+      <View style={styles.songDetails} onTouchEnd={() => playSong(item)}>
         <Text style={styles.songTitle}>{item.title}</Text>
         <Text style={styles.addedBy}>Added by: {item.addedBy}</Text>
       </View>
