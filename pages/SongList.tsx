@@ -4,9 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../Navigation';
 import { FIREBASE_AUTH, FIREBASE_DB, FIREBASE_STORAGE, FirebaseSong } from '../FirebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import React, { MutableRefObject, RefObject, useEffect, useRef, useState } from 'react';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { Audio } from "expo-av";
+import SongComponent from './SongComponent';
 
 const songs = [
   {
@@ -74,6 +75,16 @@ async function playSong(song: Song) {
     const status = await soundObject.getStatusAsync();
 console.log(status);
     await soundObject.playAsync();
+    var songEndPromise = new Promise((resolve, reject) => {
+      soundObject.setOnPlaybackStatusUpdate(async (status) => {
+        if ((status as any).didJustFinish) {
+          resolve(true);
+        }
+      });
+    });
+
+    await songEndPromise;
+    // wait till song play end
     //console.log("c")
     //await soundObject.unloadAsync();
   } catch (error) {
@@ -83,37 +94,117 @@ console.log(status);
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
+function shuffleArray(len: number) {
+  let array = Array.from({ length: len }, (_, index) => index);
+
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+
+  return array;
+}
+
+interface LectureState {
+  currentSong: number;
+  lectureList: number[];
+  currentSongAudio: Audio.Sound;
+  nextSongAudio: Audio.Sound | null;
+  nextSongLoadedPromise: Promise<any>;
+}
+
 export default function Home({ navigation }: Props)
 {
   const [songs, setSongs] = useState<Song[]>([]);
+  const songRefs: MutableRefObject<MutableRefObject<any>[]> = useRef([]);
+  const lectureState = useRef<LectureState>({
+    lectureList: [],
+    currentSong: 0,
+    currentSongAudio: new Audio.Sound(),
+    nextSongAudio: null,
+    nextSongLoadedPromise: new Promise(() => {}),
+  });
 
   useEffect(() => {
-    getSongList().then(setSongs)
+    getSongList().then((_songs) => {
+      console.log(_songs);
+      songRefs.current = [];
+      for (let i in _songs) {
+        songRefs.current.push(React.createRef());
+      }
+      lectureState.current.lectureList = shuffleArray(_songs.length);
+      setSongs(_songs);
+      //console.log(lectureList.current);
+    })
   }, [])
 
-  console.log(songs)
+  const songLoop = async () => {
 
-  const renderItem = ({ item }: {item:  Song}) => (
-    <View style={styles.songContainer}>
-      <Image source={{ uri: item.image }} style={styles.songImage} />
-      <View style={styles.songDetails} onTouchEnd={() => playSong(item)}>
-        <Text style={styles.songTitle}>{item.title}</Text>
-        <Text style={styles.addedBy}>Added by: {item.addedBy}</Text>
-      </View>
-    </View>
-  );
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: true,
+      shouldDuckAndroid: true,
+     });
+
+    while (true) {
+      // find next song
+      console.log("find next song")
+      let currentSongIndex = lectureState.current.lectureList[lectureState.current.currentSong];
+      let nextSongIndex = lectureState.current.lectureList[(lectureState.current.currentSong + 1) % lectureState.current.lectureList.length];
+      console.log("next song = ", nextSongIndex)
+      // change state of the song
+      console.log("change state of the song")
+      await songRefs.current[currentSongIndex].current.setPlaying(true);
+
+      // unload last played song
+      console.log("unload last played song")
+      await lectureState.current.currentSongAudio.unloadAsync();
+
+      if (!lectureState.current.nextSongAudio) {
+        lectureState.current.nextSongAudio = new Audio.Sound();
+        lectureState.current.nextSongLoadedPromise = lectureState.current.nextSongAudio.loadAsync({ uri: songs[currentSongIndex].song });
+      }
+      // wait for the next song (that will be the current to finish loading)
+      console.log("wait for the next song (that will be the current to finish loading)")
+      await lectureState.current.nextSongLoadedPromise;
+
+      // put nextSong at current song
+      console.log("put nextSong at current song")
+      lectureState.current.currentSongAudio = lectureState.current.nextSongAudio;
+
+      // play current song
+      console.log("play current song")
+      await lectureState.current.currentSongAudio.playAsync();
+
+      // load next song
+      console.log("load next song")
+      lectureState.current.nextSongAudio = new Audio.Sound();
+      lectureState.current.nextSongLoadedPromise = lectureState.current.nextSongAudio.loadAsync({ uri: songs[nextSongIndex].song });
+
+      await new Promise((resolve, reject) => {
+        lectureState.current.currentSongAudio.setOnPlaybackStatusUpdate(async (status) => {
+          if ((status as any).didJustFinish) {
+            resolve(true);
+          }
+        });
+      });
+      await songRefs.current[currentSongIndex].current.setPlaying(false);
+      lectureState.current.currentSong += 1;
+      if (lectureState.current.currentSong >= lectureState.current.lectureList.length) {
+        lectureState.current.currentSong = 0;
+      }
+    }
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={songs}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-      />
+      {songs.map((song, index) => <SongComponent key={song.id} song={song} playSong={playSong} ref={songRefs.current[index]} />)}
       <Button title="Go to upload"
         onPress={() => navigation.navigate("Upload") }
       />
       <Button title="Logout" onPress={() => FIREBASE_AUTH.signOut()} />
+      <Button title="Play" onPress={() => songLoop()} />
     </SafeAreaView>
   );
 };
