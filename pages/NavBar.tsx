@@ -17,7 +17,7 @@ export default function NavBar() {
         navigation.addListener('state', (e) => {
             if (!e.data.state)
                 return;
-            console.log(e.data.state.routes[e.data.state.index].name)
+            // console.log(e.data.state.routes[e.data.state.index].name)
             setCurrentScreen(e.data.state.routes[e.data.state.index].name)
         })
     }, [])
@@ -28,9 +28,9 @@ export default function NavBar() {
     }
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    if (currentScreen === 'Login' || currentScreen === 'Register' || currentScreen === 'Playlist' || currentScreen === 'Upload') return <View></View>
+    if (currentScreen === 'Login' || currentScreen === 'Register' || currentScreen === 'Upload') return <View></View>
     return (
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={{ flex: 0.09, backgroundColor: 'white', height: "10%" }}>
             {/* <View style={{ flex: 1 }}>
                 {activeScreen === 'Home' && <Home />}
                 {activeScreen === 'Search' && <Search />}
