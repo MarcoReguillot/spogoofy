@@ -1,22 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Home from "./Home"
 import Profile from "./Profile"
 import Playlist from "./Playlist"
 import Search from "./Search"
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../Navigation';
+import { NavigationProp, RouteProp, useNavigation } from '@react-navigation/native';
 
 export default function NavBar() {
 
-    const [activeScreen, setActiveScreen] = useState('Home');
+    const [activeScreen, _setActiveScreen] = useState('Home');
+    const [currentScreen, setCurrentScreen] = useState('Login');
 
+    useEffect(() => {
+        navigation.addListener('state', (e) => {
+            if (!e.data.state)
+                return;
+            console.log(e.data.state.routes[e.data.state.index].name)
+            setCurrentScreen(e.data.state.routes[e.data.state.index].name)
+        })
+    }, [])
+
+    const setActiveScreen = (screen: keyof RootStackParamList) => {
+        _setActiveScreen(screen);
+        navigation.navigate(screen)
+    }
+
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    if (currentScreen === 'Login' || currentScreen === 'Register' || currentScreen === 'Playlist' || currentScreen === 'Upload') return <View></View>
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
-            <View style={{ flex: 1 }}>
+            {/* <View style={{ flex: 1 }}>
                 {activeScreen === 'Home' && <Home />}
                 {activeScreen === 'Search' && <Search />}
                 {activeScreen === 'Playlist' && <Playlist />}
                 {activeScreen === 'Profile' && <Profile />}
-            </View>
+            </View> */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-around', padding: 10 }}>
 
                 <TouchableOpacity onPress={() => setActiveScreen('Home')}>
