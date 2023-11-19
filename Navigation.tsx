@@ -4,12 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Home from './pages/Home';
+import SongList from './pages/SongList';
+import Upload from './pages/Upload';
 
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  Home: undefined;
+  SongList: undefined;
+  Upload: undefined;
   // here put the different pages
 };
 
@@ -21,7 +23,8 @@ export default function Navigation() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="SongList" component={SongList} />
+        <Stack.Screen name="Upload" component={Upload} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
