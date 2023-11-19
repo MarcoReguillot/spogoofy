@@ -3,6 +3,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth, initializeAuth, getReactNativePersistence } from "firebase/auth";
 import { getFirestore } from '@firebase/firestore';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import { getStorage } from 'firebase/storage';
+
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 
@@ -24,3 +26,12 @@ const auth = initializeAuth(FIREBASE_APP, {
 export const FIREBASE_AUTH = getAuth(FIREBASE_APP);
 
 export const FIREBASE_DB = getFirestore(FIREBASE_APP);
+
+export const FIREBASE_STORAGE = getStorage(FIREBASE_APP, "gs://spogoofy.appspot.com");
+
+export interface FirebaseSong {
+  id: string;
+  uid: string;
+  title: string;
+  uploadedBy: string;
+}

@@ -4,9 +4,9 @@ import { View, Text, Image, Alert, StyleSheet } from 'react-native';
 import { RootStackParamList } from '../Navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
-import { collection, addDoc } from 'firebase/firestore';
-import CustomInputs from './CustomInputs';
+import { CustomInputs } from './CustomInputs';
 import { CustomButtons, ImageButton } from './CustomButtons';
+import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -23,7 +23,7 @@ export default function Login({ navigation }: Props) {
       return;
     }
     createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
-      .then((creds) => addDoc(collection(FIREBASE_DB, 'users'), {
+      .then((creds) => setDoc(doc(FIREBASE_DB, 'users', creds.user.uid), {
         username,
         uid: creds.user.uid,
       }))
