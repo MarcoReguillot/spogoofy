@@ -1,9 +1,11 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Text, Image, Alert, StyleSheet } from 'react-native';
 import { RootStackParamList } from '../Navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
+import { CustomInputs } from './CustomInputs';
+import { CustomButtons, ImageButton } from './CustomButtons';
 import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -38,13 +40,47 @@ export default function Login({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        onChangeText={(text) => setEmail(text)}
-        value={email}
+      <ImageButton
+        onPress={() => navigation.navigate("Login")}
+        text="Sign Up"
+        imageSource={require('../assets/Icons/left-arrow.png')}
       />
-      <TextInput
+      {/* <Text style={styles.title}> Sign Up</Text> */}
+      <Image
+        source={require('../assets/Icons/Spogoofy_all_logo.png')} // Assurez-vous de remplacer le chemin par le chemin réel de votre image
+        style={styles.image}
+      />
+      <CustomInputs
+        value={username}
+        setValue={setUsername}
+        placeholder="Enter your name"
+        securityTextEntry={false}
+        title="Name"
+      />
+      <CustomInputs
+        value={email}
+        setValue={setEmail}
+        placeholder="Enter your e-mail"
+        securityTextEntry={false}
+        title="Email"
+      />
+      <CustomInputs
+        value={password}
+        setValue={setPassword}
+        placeholder="Enter your password"
+        securityTextEntry={true}
+        title="Password"
+      />
+      <Text style={styles.info}>Must be at least 8 characters</Text>
+      <CustomButtons
+        text={"Create an account"}
+        onPressed={handleLogin}
+        type={"PRIMARY"}
+      />
+      <Text style={styles.text}>Already have an account?{' '}
+        <Text style={styles.link} onPress={() => navigation.navigate("Login")}>Log In</Text>
+      </Text>
+      {/* <TextInput
         style={styles.input}
         placeholder="Username"
         onChangeText={(text) => setUsername(text)}
@@ -56,9 +92,7 @@ export default function Login({ navigation }: Props) {
         onChangeText={(text) => setPassword(text)}
         value={password}
         secureTextEntry
-      />
-      <Button title="Register" onPress={handleLogin} />
-      <Button title="Go to Login" onPress={() => navigation.navigate("Login")} />
+      /> */}
     </View>
   );
 };
@@ -67,7 +101,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 16,
+    padding: 20,
+    backgroundColor: 'white',
+    // marginHorizontal: 20
   },
   input: {
     height: 40,
@@ -75,4 +111,24 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingLeft: 8,
   },
+  info: {
+    fontSize: 12,
+    color: "gray",
+  },
+  text: {
+    color: "gray",
+    marginVertical: 20,
+    textAlign: 'center',
+  },
+  link: {
+    color: "#64C3EA"
+  },
+  image: {
+    marginVertical: 40,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '800',
+    marginHorizontal: 20,
+  }
 });
