@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, Button, Dimensions, FlatList, TouchableOpacity, StyleSheet, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../Navigation';
 import { SongItem, PlaylistItem, MusicButton } from './CustomButtons';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../FirebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+
+
 
 // type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -104,6 +108,28 @@ const Home = ({ navigation }: Props) => {
 
   const [isModalVisible, setModalVisible] = useState(false);
 
+  const [name, setName] = useState<string>("");
+
+
+  // get the current user
+  const user = FIREBASE_AUTH.currentUser;
+
+  useEffect(() => {
+    if (!user) {
+      navigation.navigate('Login')
+      return;
+    }
+    const username = getDoc(doc(FIREBASE_DB, 'users', user.uid)).then((payload) => {
+      console.log("username", payload.data()?.username)
+      // name = payload.data()?.username;
+      const uname = payload.data()?.username;
+      if (uname) {
+        setName(uname);
+      }
+    });
+
+  }, [])
+
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -188,7 +214,7 @@ const Home = ({ navigation }: Props) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
-        <Text style={styles.title}>Welcome, Jean</Text>
+        <Text style={styles.title}>Welcome, {name}</Text>
         {/* <Button title="Sign Out" onPress={handleAddSong} /> */}
         <View style={styles.playlistContainer}>
           <PlaylistItem
