@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { View, TouchableOpacity, Text, FlatList, Image, StyleSheet, Button } from 'react-native';
+import { View, TouchableOpacity, Text, FlatList, Image, StyleSheet, Button, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../Navigation';
 import { FIREBASE_AUTH, FIREBASE_DB, FIREBASE_STORAGE, FirebaseSong } from '../FirebaseConfig';
@@ -24,10 +24,14 @@ async function getSongList() {
   const songs: FirebaseSong[] = songSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as FirebaseSong));
   console.log(songs);
 
-  const userIds = songs.map(song => song.uploadedBy);
+  var userIds = songs.map(song => song.uploadedBy);
   const userCollection = collection(FIREBASE_DB, 'users');
+  // delete duplicates from userIds
+  userIds = userIds.filter((value, index, self) => self.indexOf(value) === index);
+  console.log("aaa", userIds)
   const userSnapshot = await getDocs(query(userCollection, where('uid', 'in', userIds)));
 
+  console.log("ooooo")
   var songsWithUser: Song[] = songs.map(song => ({
     id: song.id,
     title: song.title,
@@ -36,13 +40,19 @@ async function getSongList() {
     song: '',
   }));
 
-  for (let i of songsWithUser) {
-    const imageRef = ref(FIREBASE_STORAGE, `images/${i.id}`);
-    i.image = await getDownloadURL(imageRef);
+  // randomly shuffle array
+  songsWithUser.sort(() => Math.random() - 0.5);
 
-    const songRef = ref(FIREBASE_STORAGE, `songs/${i.id}`);
-    i.song = await getDownloadURL(songRef);
-  }
+  // songsWithUser = songsWithUser.splice(0, 20);
+
+  // for (let i of songsWithUser) {
+  //   const imageRef = ref(FIREBASE_STORAGE, `images/${i.id}`);
+  //   i.image = await getDownloadURL(imageRef);
+
+  //   const songRef = ref(FIREBASE_STORAGE, `songs/${i.id}`);
+  //   i.song = await getDownloadURL(songRef);
+  // }
+
 
   return songsWithUser;
 }
@@ -57,6 +67,7 @@ async function playSong(song: Song) {
   });
 
   try {
+    song.song = await getDownloadURL(ref(FIREBASE_STORAGE, `songs/${song.id}`));
     await soundObject.loadAsync({ uri: song.song });
     const status = await soundObject.getStatusAsync();
     console.log(status);
@@ -110,6 +121,19 @@ export default function Home({ navigation }: Props) {
     nextSongLoadedPromise: new Promise(() => { }),
   });
   const started = useRef(false);
+  const [loadingImage, setLoadingImage] = useState(false);
+  const imageUrls = useRef<string[]>([]);
+  // useEffect(() => {
+  //   if (loadingImage || songs.length == 0) return;
+  //   setLoadingImage(true);
+  //   new Promise(async () => {
+  //     for (let i of songs) {
+  //       const imageRef = ref(FIREBASE_STORAGE, `images/${i.id}`);
+  //       imageUrls.current.push(await getDownloadURL(imageRef));
+  //       setSongs([...songs]);
+  //     }
+  //   })
+  // }, [songs])
 
   useEffect(() => {
     getSongList().then((_songs) => {
@@ -148,12 +172,15 @@ export default function Home({ navigation }: Props) {
 
       if (!lectureState.current.nextSongAudio) {
         lectureState.current.nextSongAudio = new Audio.Sound();
-        lectureState.current.nextSongLoadedPromise = lectureState.current.nextSongAudio.loadAsync({ uri: songs[currentSongIndex].song });
+        const songRef = ref(FIREBASE_STORAGE, `songs/${songs[currentSongIndex].id}`);
+        let songUri = await getDownloadURL(songRef);
+        lectureState.current.nextSongLoadedPromise = lectureState.current.nextSongAudio.loadAsync({ uri: songUri });
       }
       // wait for the next song (that will be the current to finish loading)
       console.log("wait for the next song (that will be the current to finish loading)")
       await lectureState.current.nextSongLoadedPromise;
 
+      
       // put nextSong at current song
       console.log("put nextSong at current song")
       lectureState.current.currentSongAudio = lectureState.current.nextSongAudio;
@@ -165,7 +192,9 @@ export default function Home({ navigation }: Props) {
       // load next song
       console.log("load next song")
       lectureState.current.nextSongAudio = new Audio.Sound();
-      lectureState.current.nextSongLoadedPromise = lectureState.current.nextSongAudio.loadAsync({ uri: songs[nextSongIndex].song });
+      const songRef = ref(FIREBASE_STORAGE, `songs/${songs[nextSongIndex].id}`);
+      let songUri = await getDownloadURL(songRef);
+      lectureState.current.nextSongLoadedPromise = lectureState.current.nextSongAudio.loadAsync({ uri: songUri });
 
       await new Promise((resolve, reject) => {
         lectureState.current.currentSongAudio.setOnPlaybackStatusUpdate(async (status) => {
@@ -229,12 +258,14 @@ export default function Home({ navigation }: Props) {
         </View>
 
       </View>
-      {songs.map((song, index) => <SongComponent key={song.id} song={song} playSong={playSong} ref={songRefs.current[index]} />)}
+      <ScrollView>
+      {songs.map((song, index) => <SongComponent image={imageUrls.current.at(index)} key={song.id} song={song} playSong={playSong} ref={songRefs.current[index]} />)}
       {/* <FlatList
         data={songs}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
       /> */}
+      </ScrollView>
       <Button title="Pause" onPress={() => {
         if (started.current == false) return;
         lectureState.current.currentSongAudio.pauseAsync();
