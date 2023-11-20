@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { View, Text, FlatList, Image, StyleSheet, Button } from 'react-native';
+import { View, TouchableOpacity, Text, FlatList, Image, StyleSheet, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../Navigation';
 import { FIREBASE_AUTH, FIREBASE_DB, FIREBASE_STORAGE, FirebaseSong } from '../FirebaseConfig';
@@ -8,6 +8,8 @@ import React, { MutableRefObject, RefObject, useEffect, useRef, useState } from 
 import { getDownloadURL, ref } from 'firebase/storage';
 import { Audio } from "expo-av";
 import SongComponent from './SongComponent';
+import { SongItem } from './CustomButtons';
+
 
 const songs = [
   {
@@ -35,7 +37,7 @@ interface Song {
 async function getSongList() {
   const songCollection = collection(FIREBASE_DB, 'songs');
   const songSnapshot = await getDocs(songCollection);
-  const songs: FirebaseSong[] = songSnapshot.docs.map(doc => ({...doc.data(), id: doc.id } as FirebaseSong));
+  const songs: FirebaseSong[] = songSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as FirebaseSong));
   console.log(songs);
 
   const userIds = songs.map(song => song.uploadedBy);
@@ -64,16 +66,16 @@ async function getSongList() {
 async function playSong(song: Song) {
   const soundObject = new Audio.Sound();
   await Audio.setAudioModeAsync({
-   allowsRecordingIOS: false,
-   playsInSilentModeIOS: true,
-   staysActiveInBackground: true,
-   shouldDuckAndroid: true,
+    allowsRecordingIOS: false,
+    playsInSilentModeIOS: true,
+    staysActiveInBackground: true,
+    shouldDuckAndroid: true,
   });
 
   try {
     await soundObject.loadAsync({ uri: song.song });
     const status = await soundObject.getStatusAsync();
-console.log(status);
+    console.log(status);
     await soundObject.playAsync();
     var songEndPromise = new Promise((resolve, reject) => {
       soundObject.setOnPlaybackStatusUpdate(async (status) => {
@@ -113,8 +115,7 @@ interface LectureState {
   nextSongLoadedPromise: Promise<any>;
 }
 
-export default function Home({ navigation }: Props)
-{
+export default function Home({ navigation }: Props) {
   const [songs, setSongs] = useState<Song[]>([]);
   const songRefs: MutableRefObject<MutableRefObject<any>[]> = useRef([]);
   const lectureState = useRef<LectureState>({
@@ -122,7 +123,7 @@ export default function Home({ navigation }: Props)
     currentSong: 0,
     currentSongAudio: new Audio.Sound(),
     nextSongAudio: null,
-    nextSongLoadedPromise: new Promise(() => {}),
+    nextSongLoadedPromise: new Promise(() => { }),
   });
   const started = useRef(false);
 
@@ -145,7 +146,7 @@ export default function Home({ navigation }: Props)
       playsInSilentModeIOS: true,
       staysActiveInBackground: true,
       shouldDuckAndroid: true,
-     });
+    });
 
     while (true) {
       // find next song
@@ -197,53 +198,120 @@ export default function Home({ navigation }: Props)
     }
   }
 
+  const renderItem = ({ item }: any) => (
+    <View style={styles.songContainer}>
+      {/* <Image source={{ uri: item.image }} style={styles.songImage} />
+      <View style={styles.songDetails}>
+        <Text style={styles.songTitle}>{item.title}</Text>
+        <Text style={styles.addedBy}>Added by: {item.addedBy}</Text>
+      </View> */}
+      <SongItem
+        image={{ uri: item.image }}
+        icon={require('../assets/Icons/3dots.png')}
+        title={item.title}
+        addedBy={item.addedBy}
+        containerStyle={{ backgroundColor: 'white', borderRadius: 10 }}
+        titleStyle={{ fontSize: 15 }}
+        addedByStyle={{ fontStyle: 'italic' }}
+        onPress={() => {
+          if (!started.current) {
+            songLoop();
+            started.current = true;
+            return;
+          }
+          lectureState.current.currentSongAudio.playAsync();
+        }}
+      />
+    </View>
+
+  );
+
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.iconTitle}>
+        <Text style={styles.title}>Liked sounds</Text>
+        <View style={styles.rightContainer}>
+          <TouchableOpacity onPress={() => {
+            if (!started.current) {
+              songLoop();
+              started.current = true;
+              return;
+            }
+            lectureState.current.currentSongAudio.playAsync();
+          }} style={styles.buttonContainer}>
+            <Image source={require("../assets/Icons/play.png")} style={styles.image} />
+          </TouchableOpacity>
+        </View>
+
+      </View>
       {songs.map((song, index) => <SongComponent key={song.id} song={song} playSong={playSong} ref={songRefs.current[index]} />)}
-      <Button title="Go to upload"
-        onPress={() => navigation.navigate("Upload") }
-      />
-      <Button title="Logout" onPress={() => FIREBASE_AUTH.signOut()} />
-      <Button title="Play" onPress={() => {
-        if (!started.current) {
-          songLoop();
-          started.current = true;
-          return;
-        }
-        lectureState.current.currentSongAudio.playAsync();
-      }} />
-      <Button title="Pause" onPress={() => {
-        if (started.current == false) return;
-        lectureState.current.currentSongAudio.pauseAsync();
-      }} />
-    </SafeAreaView>
+      {/* <FlatList
+        data={songs}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+      /> */}
+    </SafeAreaView >
+    // <SafeAreaView style={styles.container}>
+    //   <Button title="Go to upload"
+    //     onPress={() => navigation.navigate("Upload")}
+    //   />
+    //   <Button title="Logout" onPress={() => FIREBASE_AUTH.signOut()} />
+    //   <Button title="Play" onPress={() => {
+    //     if (!started.current) {
+    //       songLoop();
+    //       started.current = true;
+    //       return;
+    //     }
+    //     lectureState.current.currentSongAudio.playAsync();
+    //   }} />
+    //   <Button title="Pause" onPress={() => {
+    //     if (started.current == false) return;
+    //     lectureState.current.currentSongAudio.pauseAsync();
+    //   }} />
+    // </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 20,
+    backgroundColor: 'white'
   },
   songContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
   },
-  songImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 16,
-  },
-  songDetails: {
-    flex: 1,
-  },
-  songTitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 25,
     fontWeight: 'bold',
   },
-  addedBy: {
-    color: 'gray',
+  title2: {
+    fontSize: 18,
+    marginTop: 30,
+    fontWeight: 'bold',
+
   },
+  iconTitle: {
+    marginBottom: 30,
+
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingRight: 10, // Ajoutez un espace à droite pour laisser de la place à l'image
+  },
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  buttonContainer: {
+    // Styles pour votre bouton
+  },
+  image: {
+    width: 30,
+    height: 30,
+    // Autres styles d'image
+  }
+
 });

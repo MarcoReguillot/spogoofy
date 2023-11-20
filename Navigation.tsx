@@ -15,6 +15,7 @@ import Search from './pages/Search';
 import Home from './pages/Home';
 import Playlist from './pages/Playlist';
 import Profile from './pages/Profile';
+import MusicScreen from './pages/MusicScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -26,6 +27,7 @@ export type RootStackParamList = {
   Search: undefined;
   Playlist: undefined;
   Profile: undefined;
+  Music: undefined;
   // here put the different pages
 };
 
@@ -46,6 +48,7 @@ export default function Navigation() {
           <Stack.Screen name="Search" component={Search} />
           <Stack.Screen name="Playlist" component={Playlist} />
           <Stack.Screen name="Profile" component={Profile} />
+          <Stack.Screen name="Music" component={MusicScreen} />
         </Stack.Navigator>
         <NavBar />
 

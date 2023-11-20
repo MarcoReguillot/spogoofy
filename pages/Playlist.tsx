@@ -7,6 +7,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../Navigation';
 import { SongItem, PlaylistItem, MusicButton } from './CustomButtons';
 
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
+
 interface Playlist {
     id: number;
     title: string;
@@ -28,10 +30,32 @@ const playlists: Playlist[] = [
     // Ajoutez d'autres playlists ici
 ];
 
-const Playlist = () => {
+const Playlist = ({ navigation }: Props) => {
+
+    const [isModalVisible, setModalVisible] = useState(false);
+
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
+
     const handlePlaylist = () => {
         console.log('playlist')
     }
+
+    const handleAdd = () => {
+        toggleModal();
+
+        console.log('add')
+    }
+
+    const handleUpload = () => {
+        navigation.navigate('Upload')
+    }
+
+    const handleModalClose = () => {
+        // Logique à exécuter lorsque le modal est fermé en cliquant à l'extérieur
+        setModalVisible(false);
+    };
 
     const renderItem = ({ item }: any) => (
         <View>
@@ -43,29 +67,11 @@ const Playlist = () => {
                 imageStyle={{ height: 80, width: 80 }}
                 onPress={handlePlaylist}
             />
-            {/* <Image source={{ uri: item.image }} style={styles.songImage} />
-          <View style={styles.songDetails}>
-            <Text style={styles.songTitle}>{item.title}</Text>
-            <Text style={styles.addedBy}>Added by: {item.addedBy}</Text>
-          </View> */}
-            {/* <SongItem
-            image={{ uri: item.image }}
-            icon={require('../assets/Icons/3dots.png')}
-            title={item.title}
-            addedBy={item.addedBy}
-            containerStyle={{ backgroundColor: 'white', borderRadius: 10 }}
-            titleStyle={{ fontSize: 15 }}
-            addedByStyle={{ fontStyle: 'italic' }}
-            onImagePress={handleOptions}
-            onPress={handlePlaying}
-          /> */}
         </View>
 
     );
 
-    const handleAdd = () => {
-        console.log('add')
-    }
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -83,6 +89,49 @@ const Playlist = () => {
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
             />
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={toggleModal}
+            >
+                <TouchableWithoutFeedback onPress={handleModalClose}>
+                    <View style={styles.modalContainer}>
+
+                        <View style={styles.modalMenu}>
+                            <View>
+                                <Image source={require("../assets/Icons/test.png")} />
+                            </View>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 16 }}>Create</Text>
+                            <SongItem
+                                image={require('../assets/Icons/music.png')}
+                                icon={require('../assets/Icons/right-arrow.png')}
+                                title={"Playlist"}
+                                addedBy={"Choose an image from your playlist"}
+                                containerStyle={{ backgroundColor: 'white', borderRadius: 10, padding: 10, marginVertical: 10 }}
+                                titleStyle={{ fontSize: 15 }}
+                                imageStyle={{ height: 30, width: 30, borderRadius: 0, marginRight: 20 }}
+                                addedByStyle={{ fontStyle: 'italic' }}
+                                onPress={handleAdd}
+                            />
+
+                            <SongItem
+                                image={require('../assets/Icons/Upload.png')}
+                                icon={require('../assets/Icons/right-arrow.png')}
+                                title={"Upload"}
+                                addedBy={"Upload a goofy sound from your phone"}
+                                containerStyle={{ backgroundColor: 'white', borderRadius: 10, padding: 10 }}
+                                titleStyle={{ fontSize: 15 }}
+                                imageStyle={{ height: 30, width: 30, borderRadius: 0, marginRight: 20 }}
+                                // addedByStyle={{ fontStyle: 'italic' }}
+                                onPress={handleUpload}
+
+                            />
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
         </SafeAreaView >
     );
 };
@@ -121,7 +170,22 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         // Autres styles d'image
-    }
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.2)', // Fond semi-transparent pour l'effet de modal
+    },
+    modalMenu: {
+        backgroundColor: 'white',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+        borderTopRightRadius: 10,
+        borderTopLeftRadius: 10,
+
+    },
 
 });
 

@@ -7,6 +7,7 @@ import { SongItem, PlaylistItem, MusicButton } from './CustomButtons';
 
 // type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const songs = [
   {
@@ -64,7 +65,7 @@ const playlists: Playlist[] = [
   // Ajoutez d'autres playlists ici
 ];
 
-const Home = () => {
+const Home = ({ navigation }: Props) => {
 
   const [isModalVisible, setModalVisible] = useState(false);
 
@@ -85,6 +86,8 @@ const Home = () => {
   };
   const handlePlaylist = () => {
     console.log('playlist');
+    navigation.navigate('SongList')
+
   };
   const handleModalClose = () => {
     // Logique à exécuter lorsque le modal est fermé en cliquant à l'extérieur
