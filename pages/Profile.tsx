@@ -11,7 +11,10 @@ import { doc, getDoc } from 'firebase/firestore';
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 
+
 const Profile = ({ navigation }: Props) => {
+    const [name, setName] = useState<string>("");
+
 
     const handleSignOut = () => {
         signOut(FIREBASE_AUTH);
@@ -26,13 +29,25 @@ const Profile = ({ navigation }: Props) => {
             navigation.navigate('Login')
             return;
         }
-        const username = getDoc(doc(FIREBASE_DB, 'users', user.uid))
+        const username = getDoc(doc(FIREBASE_DB, 'users', user.uid)).then((payload) => {
+            console.log("username", payload.data()?.username)
+            // name = payload.data()?.username;
+            const uname = payload.data()?.username;
+            if (uname) {
+                setName(uname);
+            }
+        });
+
     }, [])
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text>Profile</Text>
-            <Text>{user?.email}</Text>
+            <Text style={styles.title}>Profile</Text>
+            <Text style={{ marginVertical: 10, fontSize: 15 }}>My mail: {user?.email}</Text>
+            <Text style={{ marginVertical: 10, fontSize: 15 }}>My name: {name}</Text>
+            <Text style={{ fontWeight: 'bold', marginVertical: 10, fontSize: 25 }}>Contact</Text>
+            <Text style={{ marginVertical: 10, fontSize: 15 }}>Number: +33 6 66 66 66 66</Text>
+            <Text style={{ marginVertical: 10, fontSize: 15 }}>Mail: spoogofy.enterprise@spo.com</Text>
             <CustomButtons
                 text={"Sign Out"}
                 onPressed={handleSignOut}
@@ -48,39 +63,10 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: 'white'
     },
-    songContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    songImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginRight: 16,
-    },
-    songDetails: {
-        flex: 1,
-    },
-    songTitle: {
-        fontSize: 18,
+    title: {
         fontWeight: 'bold',
-    },
-    addedBy: {
-        color: 'gray',
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.2)', // Fond semi-transparent pour l'effet de modal
-    },
-    modalMenu: {
-        backgroundColor: 'white',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 10,
-
+        fontSize: 32,
+        marginBottom: 10
     }
 });
 
