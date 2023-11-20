@@ -10,22 +10,6 @@ import { Audio } from "expo-av";
 import SongComponent from './SongComponent';
 import { SongItem } from './CustomButtons';
 
-
-const songs = [
-  {
-    id: 1,
-    title: 'Song 1',
-    image: 'https://placekitten.com/200/200', // Example image URL
-    addedBy: 'John Doe',
-  },
-  {
-    id: 2,
-    title: 'Song 2',
-    image: 'https://placekitten.com/200/201', // Example image URL
-    addedBy: 'Jane Doe',
-  },
-];
-
 interface Song {
   id: string;
   title: string;
@@ -238,6 +222,7 @@ export default function Home({ navigation }: Props) {
               return;
             }
             lectureState.current.currentSongAudio.playAsync();
+            // if (started.current == false) return;
           }} style={styles.buttonContainer}>
             <Image source={require("../assets/Icons/play.png")} style={styles.image} />
           </TouchableOpacity>
@@ -250,6 +235,10 @@ export default function Home({ navigation }: Props) {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
       /> */}
+      <Button title="Pause" onPress={() => {
+        if (started.current == false) return;
+        lectureState.current.currentSongAudio.pauseAsync();
+      }} />
     </SafeAreaView >
     // <SafeAreaView style={styles.container}>
     //   <Button title="Go to upload"
@@ -264,10 +253,7 @@ export default function Home({ navigation }: Props) {
     //     }
     //     lectureState.current.currentSongAudio.playAsync();
     //   }} />
-    //   <Button title="Pause" onPress={() => {
-    //     if (started.current == false) return;
-    //     lectureState.current.currentSongAudio.pauseAsync();
-    //   }} />
+    //   
     // </SafeAreaView>
   );
 };
