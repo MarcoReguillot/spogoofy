@@ -190,11 +190,11 @@ const Home = ({ navigation }: Props) => {
       <ScrollView>
         <Text style={styles.title}>Welcome, Jean</Text>
         {/* <Button title="Sign Out" onPress={handleAddSong} /> */}
-        <View style={styles.playlist}>
+        <View style={styles.playlistContainer}>
           <PlaylistItem
             image={require('../assets/Icons/Liked_sound.png')}
             title="Liked sounds"
-            containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25 }}
+            containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25, marginRight: 10 }}
             titleStyle={{ fontSize: 12, color: 'white' }}
             imageStyle={{ borderRadius: 10 }}
             onPress={handlePlaylist}
@@ -202,7 +202,7 @@ const Home = ({ navigation }: Props) => {
           <PlaylistItem
             image={require('../assets/Icons/Goofy.png')}
             title="Goofy"
-            containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25 }}
+            containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25, marginRight: 20 }}
             titleStyle={{ fontSize: 12, color: 'white' }}
             onPress={handlePlaylist}
             imageStyle={{ borderRadius: 10 }}
