@@ -38,10 +38,6 @@ const Playlist = ({ navigation }: Props) => {
         setModalVisible(!isModalVisible);
     };
 
-    const handlePlaylist = () => {
-        console.log('playlist')
-    }
-
     const handleAdd = () => {
         toggleModal();
 
@@ -55,6 +51,11 @@ const Playlist = ({ navigation }: Props) => {
     const handleModalClose = () => {
         // Logique à exécuter lorsque le modal est fermé en cliquant à l'extérieur
         setModalVisible(false);
+    };
+    const handlePlaylist = () => {
+        console.log('playlist');
+        navigation.navigate('SongList')
+
     };
 
     const renderItem = ({ item }: any) => (
@@ -84,10 +85,26 @@ const Playlist = ({ navigation }: Props) => {
                 </View>
 
             </View>
-            <FlatList
+            {/* <FlatList
                 data={playlists}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderItem}
+            /> */}
+            <PlaylistItem
+                image={require('../assets/Icons/Liked_sound.png')}
+                title="Liked sounds"
+                containerStyle={{ backgroundColor: 'white', marginRight: 10 }}
+                titleStyle={{ fontSize: 20, color: 'black', marginLeft: 10 }}
+                imageStyle={{ height: 80, width: 80 }}
+                onPress={handlePlaylist}
+            />
+            <PlaylistItem
+                image={require('../assets/Icons/Goofy.png')}
+                title="Goofy"
+                containerStyle={{ backgroundColor: 'white', marginRight: 10 }}
+                titleStyle={{ fontSize: 20, color: 'black', marginLeft: 10 }}
+                imageStyle={{ height: 80, width: 80 }}
+                onPress={handlePlaylist}
             />
             <Modal
                 animationType="slide"

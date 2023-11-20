@@ -27,18 +27,53 @@ const songs = [
 const newSongs = [
   {
     id: 1,
-    title: 'Cat goofy 1',
-    image: 'https://placekitten.com/200/200', // Example image URL
+    title: 'damnnnn',
+    image: 'https://us-tuna-sounds-images.voicemod.net/bf7cc066-fc4b-4bd7-8ee8-d96876dc0077-1666364305698.jpg', // Example image URL
   },
   {
     id: 2,
-    title: 'Song 2',
-    image: 'https://placekitten.com/200/201', // Example image URL
+    title: 'drip bob',
+    image: 'https://assets.puzzlefactory.com/puzzle/237/551/original.jpg', // Example image URL
   },
   {
     id: 3,
-    title: 'Song 2',
-    image: 'https://placekitten.com/200/201', // Example image URL
+    title: 'Blue smurf',
+    image: 'https://i.ytimg.com/vi/seaHqIMTECo/maxresdefault.jpg', // Example image URL
+  },
+
+
+];
+
+const newSongs2 = [
+  {
+    id: 1,
+    title: 'Salut c ninho',
+    image: 'https://cdn.discordapp.com/attachments/1139258191503433730/1176128882127147018/Zys9d2dbc3_9ho4x.png?ex=656dbe60&is=655b4960&hm=d8928a59375729fea08bb51ef928b9cf7ce3516d52cfbfb9e8fb385d4e0c6527&', // Example image URL
+  },
+  {
+    id: 2,
+    title: 'Jaune atan',
+    image: 'https://www.madmoizelle.com/wp-content/uploads/2017/07/jaune-et-qui-attend-youtube.jpg', // Example image URL
+  },
+  {
+    id: 3,
+    title: 'pls',
+    image: 'https://risibank.fr/cache/medias/0/1/191/19132/full.png', // Example image URL
+  },
+
+
+];
+
+const newSongs3 = [
+  {
+    id: 1,
+    title: 'macronnnnnnnnn',
+    image: 'https://images3.memedroid.com/images/UPLOADED391/5f859d50e0601.jpeg', // Example image URL
+  },
+  {
+    id: 2,
+    title: 'Ta maman',
+    image: 'https://pbs.twimg.com/profile_images/1303090872553267205/EMnypojd_400x400.jpg', // Example image URL
   },
 
 
@@ -69,13 +104,11 @@ const Home = ({ navigation }: Props) => {
 
   const [isModalVisible, setModalVisible] = useState(false);
 
+
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-  const handleAddSong = () => {
-    // signOut(FIREBASE_AUTH);
-    // navigation.navigate('Login')
-  };
+
 
   const handleOptions = () => {
     console.log('3 points');
@@ -88,10 +121,6 @@ const Home = ({ navigation }: Props) => {
     console.log('playlist');
     navigation.navigate('SongList')
 
-  };
-  const handleModalClose = () => {
-    // Logique à exécuter lorsque le modal est fermé en cliquant à l'extérieur
-    setModalVisible(false);
   };
   const handleNewSong = () => {
     console.log('new song');
@@ -161,12 +190,13 @@ const Home = ({ navigation }: Props) => {
       <ScrollView>
         <Text style={styles.title}>Welcome, Jean</Text>
         {/* <Button title="Sign Out" onPress={handleAddSong} /> */}
-        {/* <View style={styles.playlist}>
+        <View style={styles.playlist}>
           <PlaylistItem
             image={require('../assets/Icons/Liked_sound.png')}
             title="Liked sounds"
             containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25 }}
             titleStyle={{ fontSize: 12, color: 'white' }}
+            imageStyle={{ borderRadius: 10 }}
             onPress={handlePlaylist}
           />
           <PlaylistItem
@@ -175,16 +205,17 @@ const Home = ({ navigation }: Props) => {
             containerStyle={{ backgroundColor: 'black', borderRadius: 10, height: 50, width: (screenWidth / 2) - 25 }}
             titleStyle={{ fontSize: 12, color: 'white' }}
             onPress={handlePlaylist}
+            imageStyle={{ borderRadius: 10 }}
           // Propriétés pour le deuxième PlaylistItem
           />
-        </View> */}
+        </View>
         <View>
-          <FlatList
+          {/* <FlatList
             data={playlists}
             renderItem={renderPlaylistItem}
             keyExtractor={keyExtractor}
             numColumns={2}
-          />
+          /> */}
         </View>
         <View style={styles.horizontal}>
           <Text style={styles.title2}>Recently played</Text>
@@ -198,7 +229,7 @@ const Home = ({ navigation }: Props) => {
         </View>
         <Text style={styles.title2}>Made for you</Text>
         <FlatList
-          data={newSongs}
+          data={newSongs2}
           keyExtractor={(item) => item.id.toString()}
           renderItem={newSongsItem}
           horizontal={true}
@@ -206,62 +237,13 @@ const Home = ({ navigation }: Props) => {
         />
         <Text style={styles.title2}>Popular</Text>
         <FlatList
-          data={newSongs}
+          data={newSongs3}
           keyExtractor={(item) => item.id.toString()}
           renderItem={newSongsItem}
           horizontal={true}
           contentContainerStyle={{ flexGrow: 1, alignSelf: 'flex-end' }}
         />
-        <Text style={styles.title}>Popular</Text>
 
-
-
-        {/* <FlatList
-        data={songs}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        numColumns={1}
-      />
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={toggleModal}
-      >
-        <TouchableWithoutFeedback onPress={handleModalClose}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalMenu}>
-              <SongItem
-                image={require('../assets/Icons/music.png')}
-                icon={require('../assets/Icons/right-arrow.png')}
-                title={"Playlist"}
-                addedBy={"Choose an image from your playlist"}
-                containerStyle={{ backgroundColor: 'white', borderRadius: 10, padding: 10, marginVertical: 10 }}
-                titleStyle={{ fontSize: 15 }}
-                imageStyle={{ height: 30, width: 30, borderRadius: 0, marginRight: 20 }}
-                addedByStyle={{ fontStyle: 'italic' }}
-                onImagePress={handleOptions}
-              />
-
-              <SongItem
-                image={require('../assets/Icons/gallery.png')}
-                icon={require('../assets/Icons/right-arrow.png')}
-                title={"Upload"}
-                addedBy={"Upload a goofy sound from your phone"}
-                containerStyle={{ backgroundColor: 'white', borderRadius: 10, padding: 10 }}
-                titleStyle={{ fontSize: 15 }}
-                imageStyle={{ height: 30, width: 30, borderRadius: 0, marginRight: 20 }}
-                // addedByStyle={{ fontStyle: 'italic' }}
-                onImagePress={handleOptions}
-              />
-
-              <TouchableOpacity onPress={toggleModal}>
-                <Text>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal> */}
       </ScrollView>
     </SafeAreaView >
   );

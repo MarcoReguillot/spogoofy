@@ -5,14 +5,26 @@ import { FIREBASE_AUTH } from '../FirebaseConfig';
 import { signOut } from 'firebase/auth';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../Navigation';
-import { SongItem } from './CustomButtons';
+import { SongItem, CustomButtons } from './CustomButtons';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 
-const Profile = () => {
+const Profile = ({ navigation }: Props) => {
+
+    const handleSignOut = () => {
+        signOut(FIREBASE_AUTH);
+        navigation.navigate('Login')
+    };
 
     return (
         <SafeAreaView style={styles.container}>
             <Text>Profile</Text>
+            <CustomButtons
+                text={"Sign Out"}
+                onPressed={handleSignOut}
+                type={"PRIMARY"}
+            />
         </SafeAreaView >
     );
 };
