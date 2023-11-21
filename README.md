@@ -37,6 +37,8 @@ npx expo start
 6. The Spogoofy app will load on your mobile device, and you can start exploring its features.
 
 7. If you want to run the app you need to create a .env file with a line in it (it's given in the report).
+cd spogoofy
+Create the .env file and put all the line who is given
 
 ## Project Structure
 
